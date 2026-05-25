@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🛒 Costco Checklist</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0c0c0e; --surface: #131317; --surface2: #1a1a21; --border: #2a2a36;
+    --text: #e8e8f2; --muted: #8888a2;
+    --accent: #7db8ff; --accent-bg: #101f36; --row: #0a1628; --row-hover: #0d1f38;
+    --amber: #ffc96b; --amber-bg: #2e1f08;
+    --purple: #c09eff; --purple-bg: #1e1330;
+    --green: #6ee89b; --green-bg: #162b20;
+    --red: #ff8c8c; --radius: 10px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 1.1rem; min-height: 100vh; padding: 0; }
+
+  /* STICKY TOP */
+  .top-bar { position: sticky; top: 0; z-index: 100; background: var(--surface); border-bottom: 1.5px solid var(--border); padding: 0.75rem 1.4rem; }
+  .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.55rem; }
+  .top-title { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
+  .top-date { text-align: right; }
+  .top-date .d-day { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; }
+  .top-date .d-main { font-size: 1rem; font-weight: 600; color: var(--text); line-height: 1.1; }
+  .top-date .d-year { font-size: 0.75rem; color: var(--muted); }
+  .top-bar-inner { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .progress-bar-bg { background: var(--surface2); border-radius: 999px; height: 7px; overflow: hidden; border: 1px solid var(--border); flex: 1; min-width: 80px; }
+  .progress-bar-fill { height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.35s cubic-bezier(.4,0,.2,1); width: 0%; }
+  .stat-pill { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 999px; padding: 0.18rem 0.85rem; font-size: 0.95rem; color: var(--muted); font-weight: 500; white-space: nowrap; }
+  .stat-pill span { color: var(--accent); font-weight: 700; }
+
+  /* ADD ITEM */
+  .add-row { display: flex; gap: 0.6rem; padding: 0.85rem 1.2rem; background: var(--surface2); border-bottom: 1.5px solid var(--border); }
+  .add-input { flex: 1; background: var(--bg); border: 1.5px solid var(--border); color: var(--text); border-radius: var(--radius); padding: 0.5rem 0.9rem; font-family: 'DM Sans', sans-serif; font-size: 1rem; outline: none; transition: border-color 0.15s; }
+  .add-input:focus { border-color: var(--accent); }
+  .add-btn { background: var(--accent-bg); border: 1.5px solid var(--accent); color: var(--accent); border-radius: var(--radius); padding: 0.5rem 1.1rem; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+  .add-btn:hover { background: #152840; }
+
+  /* SORT TOGGLE */
+  .sort-row { display: flex; gap: 0.5rem; padding: 0.7rem 1.2rem; background: var(--surface); border-bottom: 1.5px solid var(--border); }
+  .sort-btn { flex: 1; padding: 0.4rem 0; border-radius: var(--radius); border: 1.5px solid var(--border); background: transparent; color: var(--muted); font-size: 0.95rem; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.18s; }
+  .sort-btn.active { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
+  .sort-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+
+  /* CONTENT */
+  .content { padding: 0.8rem 1.2rem 5.5rem; }
+
+  .done-banner { display: none; background: var(--green-bg); border: 1.5px solid var(--green); border-radius: var(--radius); padding: 0.75rem 1.2rem; color: var(--green); font-size: 1.05rem; font-weight: 600; text-align: center; margin-bottom: 1rem; animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+
+  /* CARD & SECTIONS */
+  .checklist-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 1rem; }
+  .section-label { padding: 0.45rem 1.2rem; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--purple); background: var(--purple-bg); border-bottom: 1.5px solid var(--border); }
+  .section-label.incart { color: var(--accent); background: var(--accent-bg); }
+  .section-label.alpha { color: var(--amber); background: var(--amber-bg); }
+
+  /* ITEMS */
+  .checklist-item { display: flex; align-items: center; gap: 0.85rem; padding: 0.65rem 1.2rem; background: var(--row); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; user-select: none; }
+  .checklist-item:last-child { border-bottom: none; }
+  .checklist-item:hover { background: var(--row-hover); }
+  .checklist-item.checked { opacity: 0.45; }
+  .checklist-item.checked .item-label { color: var(--muted); }
+  .custom-check { width: 1.3rem; height: 1.3rem; border-radius: 4px; border: 2px solid var(--accent); background: transparent; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+  .checklist-item.checked .custom-check { background: var(--accent); border-color: var(--accent); }
+  .custom-check svg { display: none; width: 0.75rem; height: 0.75rem; }
+  .checklist-item.checked .custom-check svg { display: block; }
+  .item-label { font-size: 1.05rem; font-weight: 400; color: var(--text); flex: 1; }
+  .remove-btn { background: none; border: none; color: var(--muted); cursor: pointer; padding: 0.2rem 0.4rem; font-size: 1rem; border-radius: 4px; transition: color 0.15s, background 0.15s; flex-shrink: 0; line-height: 1; }
+  .remove-btn:hover { color: var(--red); background: rgba(255,140,140,0.1); }
+
+  /* IN CART */
+  .incart-item { display: flex; align-items: center; gap: 0.85rem; padding: 0.55rem 1.2rem; background: var(--row); border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; transition: background 0.15s; opacity: 0.6; }
+  .incart-item:hover { background: var(--row-hover); opacity: 0.8; }
+  .incart-item .item-label { color: var(--muted); font-size: 1rem; }
+  .incart-check { width: 1.2rem; height: 1.2rem; border-radius: 4px; background: var(--accent); border: 2px solid var(--accent); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .incart-check svg { width: 0.7rem; height: 0.7rem; }
+
+  /* BOTTOM */
+  .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1.5px solid var(--border); padding: 0.85rem 1.4rem; display: flex; justify-content: center; }
+  .reset-btn { background: transparent; border: 1.5px solid var(--red); color: var(--red); border-radius: var(--radius); padding: 0.45rem 2rem; font-size: 1rem; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background 0.15s; display: flex; align-items: center; gap: 0.5rem; }
+  .reset-btn:hover { background: rgba(255,140,140,0.1); }
+</style>
+</head>
+<body>
+
+<!-- STICKY TOP -->
+<div class="top-bar">
+  <div class="top-header">
+    <div class="top-title">🛒 Costco Checklist</div>
+    <div class="top-date">
+      <div class="d-day" id="dayName"></div>
+      <div class="d-main" id="dateBig"></div>
+      <div class="d-year" id="yearEl"></div>
+    </div>
+  </div>
+  <div class="top-bar-inner">
+    <div class="stat-pill">In Cart <span id="cartCount">0</span></div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+    <div class="stat-pill">Left <span id="remainingCount">0</span></div>
+  </div>
+</div>
+
+<!-- ADD ITEM -->
+<div class="add-row">
+  <input class="add-input" id="addInput" type="text" placeholder="Add item…" autocomplete="off">
+  <button class="add-btn" id="addBtn">+ Add</button>
+</div>
+
+<!-- SORT TOGGLE -->
+<div class="sort-row">
+  <button class="sort-btn active" id="btnCategory">📦 By Category</button>
+  <button class="sort-btn" id="btnAlpha">🔤 Alphabetically</button>
+</div>
+
+<div class="content">
+  <div class="done-banner" id="doneBanner">🎉 Cart's full! Head to checkout.</div>
+  <div id="shoppingList"></div>
+  <div id="incartSection" style="display:none;">
+    <div class="checklist-card">
+      <div class="section-label incart">🛒 In Cart</div>
+      <div id="incartList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <button class="reset-btn" id="resetBtn">
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 8a6 6 0 1 0 1.5-3.9" stroke="#ff8c8c" stroke-width="1.8" stroke-linecap="round"/><path d="M2 4v4h4" stroke="#ff8c8c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Reset Cart
+  </button>
+</div>
+
+<script>
+const CK = `<svg viewBox="0 0 12 10" fill="none"><path d="M1 5l3.5 3.5L11 1" stroke="#0c0c0e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+// Date
+const now = new Date();
+const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+document.getElementById('dayName').textContent = DAYS[now.getDay()];
+document.getElementById('dateBig').textContent = MONTHS[now.getMonth()] + ' ' + now.getDate();
+document.getElementById('yearEl').textContent = now.getFullYear();
+
+// ── DATA ──────────────────────────────────────────────────
+const DEFAULT_SECTIONS = [
+  { label: "🥦 Produce", items: ["Oranges","Mandarin","Green Red Peppers","Mushroom","Cabbage","Carrot","Crispy Lettuce 5x","Super C, Plantain Verde","Plants"] },
+  { label: "🥩 Meat & Seafood", items: ["Chicken with Skin","Ground Beef","Lean Ground Beef (Cylinder)","Beef for Sous Vide","Chicken Strips","Bison Meat","Chicken Baked","Beef Ragu (Good Ones)"] },
+  { label: "🥛 Dairy & Eggs", items: ["Eggs","Milk","Shredded Cheese","Cheese Slice","Cheese Mozarella"] },
+  { label: "🧊 Freezer", items: ["Chicken - Kirkland Microwavable","Edamame","Sweet Potato Frozen","Frozen Mango Chunks","Mozarella Sticks","Sweet Potato Fries","Quick Bites","Greek Salad"] },
+  { label: "🍞 Bakery & Deli", items: ["White Bread Villagio","Bruschetta","Guacamole","Bulgogi Sauce","The Keg or Diana Sauce","Diana Sauce","Crispy Onions","Onion Chopped Kirkland"] },
+  { label: "🛒 Grocery & Pantry", items: ["Rice","Canola Oil","Vinegar","Aluminum Foil","Clear Plastic Wrap","Onion Dried Chopped","Jello","Orange Juice","Canada Dry Zero","Coke Zero","Bottled Water","Gum","Protein Pancake","Protein Shake"] },
+  { label: "💊 Health & Supplements", items: ["Omega3","Zinc","Probiotic on Sale"] },
+  { label: "💄 Personal Care", items: ["Toothpaste - Colgate","Toothbrush Replacements","Body Wash","Lotion Kirkland","Buy Lotion","Qtips","Handsoap","Toilet Paper","Toilet Tissue","Baby Wipes"] },
+  { label: "🧹 Cleaning & Laundry", items: ["Dish Liquid Soap (Sunlight)","Sunlight Dishwashing Liquid","Hertel","Laundry Soap","Softener","Automatic Dishwasher Detergent","Toilet Bowl Cleaner Lysol","Bleach","Chlorine","Salt Ground Ice"] },
+  { label: "🏠 Household", items: ["Tissue Kleanex","Scott Towel","Kitchen Trash Bags","Garbage Bag","Transparent Plastic Bag Big","Buy Rags","Canadian Clear Bins","Windshield Washer"] },
+  { label: "🔋 Electronics & Batteries", items: ["AA Batteries","AAA Batteries","Airtag Batteries","Touchbrush Phillips Replacements"] },
+  { label: "👕 Clothing", items: ["Office Socks"] },
+  { label: "❄️ Seasonal & Auto", items: ["Winter Salt","Car Winter Brush & Ice Remover"] }
+];
+
+const SK = 'costcoSections2';
+const CK2 = 'costcoCart2';
+
+function loadSections() {
+  const s = localStorage.getItem(SK);
+  return s ? JSON.parse(s) : DEFAULT_SECTIONS.map(s => ({ label: s.label, items: [...s.items] }));
+}
+function saveSections(s) { localStorage.setItem(SK, JSON.stringify(s)); }
+function loadCart() { return new Set(JSON.parse(localStorage.getItem(CK2) || '[]')); }
+function saveCart(c) { localStorage.setItem(CK2, JSON.stringify([...c])); }
+
+let sections = loadSections();
+let cart = loadCart();
+let sortMode = 'category'; // 'category' | 'alpha'
+
+function allItems() { return sections.flatMap(s => s.items); }
+
+function removeItem(name) {
+  sections = sections.map(s => ({ ...s, items: s.items.filter(i => i !== name) }));
+  cart.delete(name.toLowerCase());
+  saveSections(sections);
+  saveCart(cart);
+  render();
+}
+
+function makeShopRow(name) {
+  const div = document.createElement('div');
+  div.className = 'checklist-item';
+  div.innerHTML = `<div class="custom-check">${CK}</div><span class="item-label">${name}</span><button class="remove-btn" title="Remove">✕</button>`;
+  div.querySelector('.item-label').addEventListener('click', () => { cart.add(name.toLowerCase()); saveCart(cart); render(); });
+  div.querySelector('.custom-check').addEventListener('click', e => { e.stopPropagation(); cart.add(name.toLowerCase()); saveCart(cart); render(); });
+  div.querySelector('.remove-btn').addEventListener('click', e => { e.stopPropagation(); removeItem(name); });
+  return div;
+}
+
+function makeCartRow(name) {
+  const div = document.createElement('div');
+  div.className = 'incart-item';
+  div.innerHTML = `<div class="incart-check">${CK}</div><span class="item-label">${name}</span><button class="remove-btn" title="Remove">✕</button>`;
+  div.querySelector('.item-label').addEventListener('click', () => { cart.delete(name.toLowerCase()); saveCart(cart); render(); });
+  div.querySelector('.incart-check').addEventListener('click', e => { e.stopPropagation(); cart.delete(name.toLowerCase()); saveCart(cart); render(); });
+  div.querySelector('.remove-btn').addEventListener('click', e => { e.stopPropagation(); removeItem(name); });
+  return div;
+}
+
+function render() {
+  const listEl = document.getElementById('shoppingList');
+  const incartEl = document.getElementById('incartList');
+  const incartSec = document.getElementById('incartSection');
+  listEl.innerHTML = '';
+  incartEl.innerHTML = '';
+
+  const remaining = allItems().filter(i => !cart.has(i.toLowerCase()));
+  const inCart = allItems()
+    .filter(i => cart.has(i.toLowerCase()))
+    .filter((i, idx, arr) => arr.findIndex(x => x.toLowerCase() === i.toLowerCase()) === idx)
+    .sort((a, b) => a.localeCompare(b));
+
+  if (sortMode === 'category') {
+    // Group by section
+    sections.forEach(sec => {
+      const secItems = sec.items.filter(i => !cart.has(i.toLowerCase()));
+      if (!secItems.length) return;
+      const card = document.createElement('div');
+      card.className = 'checklist-card';
+      const hdr = document.createElement('div');
+      hdr.className = 'section-label';
+      hdr.textContent = sec.label;
+      card.appendChild(hdr);
+      secItems.forEach(i => card.appendChild(makeShopRow(i)));
+      listEl.appendChild(card);
+    });
+  } else {
+    // Alphabetical — single card, all remaining items sorted A-Z
+    if (remaining.length) {
+      const card = document.createElement('div');
+      card.className = 'checklist-card';
+      const hdr = document.createElement('div');
+      hdr.className = 'section-label alpha';
+      hdr.textContent = '🔤 A – Z';
+      card.appendChild(hdr);
+      [...remaining].sort((a,b) => a.localeCompare(b)).forEach(i => card.appendChild(makeShopRow(i)));
+      listEl.appendChild(card);
+    }
+  }
+
+  // In Cart (always alpha)
+  if (inCart.length) {
+    incartSec.style.display = 'block';
+    inCart.forEach(i => incartEl.appendChild(makeCartRow(i)));
+  } else {
+    incartSec.style.display = 'none';
+  }
+
+  // Stats
+  const total = allItems().length;
+  const cartCount = inCart.length;
+  const pct = total ? Math.round(cartCount / total * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('cartCount').textContent = cartCount;
+  document.getElementById('remainingCount').textContent = total - cartCount;
+  document.getElementById('doneBanner').style.display = (cartCount === total && total > 0) ? 'block' : 'none';
+}
+
+// Sort buttons
+document.getElementById('btnCategory').addEventListener('click', () => {
+  sortMode = 'category';
+  document.getElementById('btnCategory').classList.add('active');
+  document.getElementById('btnAlpha').classList.remove('active');
+  render();
+});
+document.getElementById('btnAlpha').addEventListener('click', () => {
+  sortMode = 'alpha';
+  document.getElementById('btnAlpha').classList.add('active');
+  document.getElementById('btnCategory').classList.remove('active');
+  render();
+});
+
+// Add item
+function addItem() {
+  const input = document.getElementById('addInput');
+  const val = input.value.trim();
+  if (!val) return;
+  if (!allItems().some(i => i.toLowerCase() === val.toLowerCase())) {
+    let addedSec = sections.find(s => s.label === '➕ Added Items');
+    if (!addedSec) { addedSec = { label: '➕ Added Items', items: [] }; sections.push(addedSec); }
+    addedSec.items.push(val);
+    saveSections(sections);
+  }
+  input.value = '';
+  render();
+  input.focus();
+}
+document.getElementById('addBtn').addEventListener('click', addItem);
+document.getElementById('addInput').addEventListener('keydown', e => { if (e.key === 'Enter') addItem(); });
+
+// Reset
+document.getElementById('resetBtn').addEventListener('click', () => {
+  cart.clear();
+  saveCart(cart);
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
