@@ -82,6 +82,18 @@
   .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1.5px solid var(--border); padding: 0.85rem 1.4rem; display: flex; justify-content: center; }
   .reset-btn { background: transparent; border: 1.5px solid var(--red); color: var(--red); border-radius: var(--radius); padding: 0.45rem 2rem; font-size: 1rem; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background 0.15s; display: flex; align-items: center; gap: 0.5rem; }
   .reset-btn:hover { background: rgba(255,140,140,0.1); }
+
+  /* CONFIRMATION MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.72); z-index: 200; align-items: center; justify-content: center; padding: 1.5rem; }
+  .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+  .modal { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 1.5rem 1.5rem 1.2rem; max-width: 320px; width: 100%; }
+  .modal-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 0.5rem; }
+  .modal-body { font-size: 0.95rem; color: var(--muted); margin-bottom: 1.3rem; line-height: 1.55; }
+  .modal-actions { display: flex; gap: 0.7rem; }
+  .modal-cancel { flex: 1; background: transparent; border: 1.5px solid var(--border); color: var(--muted); border-radius: var(--radius); padding: 0.5rem; font-size: 1rem; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
+  .modal-cancel:hover { border-color: var(--muted); color: var(--text); }
+  .modal-confirm { flex: 1; background: rgba(255,140,140,0.1); border: 1.5px solid var(--red); color: var(--red); border-radius: var(--radius); padding: 0.5rem; font-size: 1rem; font-weight: 700; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background 0.15s; }
+  .modal-confirm:hover { background: rgba(255,140,140,0.22); }
 </style>
 </head>
 <body>
@@ -131,6 +143,18 @@
     <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 8a6 6 0 1 0 1.5-3.9" stroke="#ff8c8c" stroke-width="1.8" stroke-linecap="round"/><path d="M2 4v4h4" stroke="#ff8c8c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
     Reset Cart
   </button>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <div class="modal-title">Reset the cart?</div>
+    <div class="modal-body">All items will be moved back to the shopping list. Your item list stays intact.</div>
+    <div class="modal-actions">
+      <button class="modal-cancel" id="modalCancel">Cancel</button>
+      <button class="modal-confirm" id="modalConfirm">Yes, Reset</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -247,10 +271,34 @@ function render() {
     }
   }
 
-  // In Cart (always alpha)
+  // In Cart — category mode: group by section; alpha mode: single sorted list
   if (inCart.length) {
     incartSec.style.display = 'block';
-    inCart.forEach(i => incartEl.appendChild(makeCartRow(i)));
+    if (sortMode === 'category') {
+      // Render one incart-card per section that has items in cart
+      sections.forEach(sec => {
+        const secInCart = sec.items.filter(i => cart.has(i.toLowerCase()));
+        if (!secInCart.length) return;
+        const card = document.createElement('div');
+        card.className = 'checklist-card';
+        const hdr = document.createElement('div');
+        hdr.className = 'section-label incart';
+        hdr.textContent = '🛒 ' + sec.label.replace(/^[\p{Emoji}\s]+/u, '').trim();
+        card.appendChild(hdr);
+        secInCart.forEach(i => card.appendChild(makeCartRow(i)));
+        incartEl.appendChild(card);
+      });
+    } else {
+      // Single alphabetical card
+      const card = document.createElement('div');
+      card.className = 'checklist-card';
+      const hdr = document.createElement('div');
+      hdr.className = 'section-label incart';
+      hdr.textContent = '🛒 In Cart';
+      card.appendChild(hdr);
+      inCart.forEach(i => card.appendChild(makeCartRow(i)));
+      incartEl.appendChild(card);
+    }
   } else {
     incartSec.style.display = 'none';
   }
@@ -297,11 +345,22 @@ function addItem() {
 document.getElementById('addBtn').addEventListener('click', addItem);
 document.getElementById('addInput').addEventListener('keydown', e => { if (e.key === 'Enter') addItem(); });
 
-// Reset
+// Reset — show confirmation modal
 document.getElementById('resetBtn').addEventListener('click', () => {
+  document.getElementById('confirmModal').classList.add('open');
+});
+document.getElementById('modalCancel').addEventListener('click', () => {
+  document.getElementById('confirmModal').classList.remove('open');
+});
+document.getElementById('modalConfirm').addEventListener('click', () => {
   cart.clear();
   saveCart(cart);
+  document.getElementById('confirmModal').classList.remove('open');
   render();
+});
+// Close on backdrop click
+document.getElementById('confirmModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) e.currentTarget.classList.remove('open');
 });
 
 render();
