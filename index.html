@@ -18,35 +18,73 @@
   }
   body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 1.1rem; min-height: 100vh; padding: 0; }
 
-  /* STICKY TOP */
-  .top-bar { position: sticky; top: 0; z-index: 100; background: var(--surface); border-bottom: 1.5px solid var(--border); padding: 0.75rem 1.4rem; }
-  .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.55rem; }
+  /* ── STICKY TOP (progress + search) ── */
+  .top-bar {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--surface);
+    border-bottom: 1.5px solid var(--border);
+    padding: 0.75rem 1.4rem 0;
+  }
+  .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
   .top-title { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
   .top-date { text-align: right; }
   .top-date .d-day { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; }
   .top-date .d-main { font-size: 1rem; font-weight: 600; color: var(--text); line-height: 1.1; }
   .top-date .d-year { font-size: 0.75rem; color: var(--muted); }
-  .top-bar-inner { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
-  .progress-bar-bg { background: var(--surface2); border-radius: 999px; height: 7px; overflow: hidden; border: 1px solid var(--border); flex: 1; min-width: 80px; }
+
+  /* progress row */
+  .progress-row { display: flex; align-items: center; gap: 0.9rem; margin-bottom: 0.65rem; }
+  .progress-bar-bg { background: var(--surface2); border-radius: 999px; height: 7px; overflow: hidden; border: 1px solid var(--border); flex: 1; }
   .progress-bar-fill { height: 100%; background: var(--accent); border-radius: 999px; transition: width 0.35s cubic-bezier(.4,0,.2,1); width: 0%; }
   .stat-pill { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 999px; padding: 0.18rem 0.85rem; font-size: 0.95rem; color: var(--muted); font-weight: 500; white-space: nowrap; }
   .stat-pill span { color: var(--accent); font-weight: 700; }
 
-  /* ADD ITEM */
-  .add-row { display: flex; gap: 0.6rem; padding: 0.85rem 1.2rem; background: var(--surface2); border-bottom: 1.5px solid var(--border); }
-  .add-input { flex: 1; background: var(--bg); border: 1.5px solid var(--border); color: var(--text); border-radius: var(--radius); padding: 0.5rem 0.9rem; font-family: 'DM Sans', sans-serif; font-size: 1rem; outline: none; transition: border-color 0.15s; }
-  .add-input:focus { border-color: var(--accent); }
-  .add-btn { background: var(--accent-bg); border: 1.5px solid var(--accent); color: var(--accent); border-radius: var(--radius); padding: 0.5rem 1.1rem; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.15s; white-space: nowrap; }
-  .add-btn:hover { background: #152840; }
+  /* search row */
+  .search-row { display: flex; align-items: center; gap: 0.6rem; padding-bottom: 0.65rem; position: relative; }
+  .search-icon { position: absolute; left: 0.75rem; color: var(--muted); font-size: 0.95rem; pointer-events: none; line-height: 1; }
+  .search-input {
+    flex: 1; background: var(--surface2); border: 1.5px solid var(--border);
+    color: var(--text); border-radius: var(--radius);
+    padding: 0.5rem 2.2rem 0.5rem 2.2rem;
+    font-family: 'DM Sans', sans-serif; font-size: 1rem; outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .search-clear {
+    position: absolute; right: 0.75rem; background: none; border: none;
+    color: var(--muted); cursor: pointer; font-size: 1rem; padding: 0; line-height: 1;
+    display: none;
+  }
+  .search-clear.visible { display: block; }
 
-  /* SORT TOGGLE */
-  .sort-row { display: flex; gap: 0.5rem; padding: 0.7rem 1.2rem; background: var(--surface); border-bottom: 1.5px solid var(--border); }
-  .sort-btn { flex: 1; padding: 0.4rem 0; border-radius: var(--radius); border: 1.5px solid var(--border); background: transparent; color: var(--muted); font-size: 0.95rem; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.18s; }
+  /* ── SORT TOGGLE (sticky below top-bar) ── */
+  .sort-bar {
+    position: sticky; top: var(--top-bar-h, 130px); z-index: 99;
+    display: flex; gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    background: var(--surface2);
+    border-bottom: 1.5px solid var(--border);
+  }
+  .sort-btn { flex: 1; padding: 0.38rem 0; border-radius: var(--radius); border: 1.5px solid var(--border); background: transparent; color: var(--muted); font-size: 0.95rem; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.18s; }
   .sort-btn.active { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
   .sort-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
 
-  /* CONTENT */
-  .content { padding: 0.8rem 1.2rem 5.5rem; }
+  /* ── CONTENT ── */
+  .content { padding: 0.8rem 1.2rem 1.5rem; }
+
+  /* search feedback */
+  .search-feedback { padding: 1.2rem 1.2rem; color: var(--muted); font-size: 1rem; text-align: center; display: none; }
+  .search-feedback .suggest-add {
+    display: inline-block; margin-top: 0.6rem;
+    background: var(--accent-bg); border: 1.5px solid var(--accent); color: var(--accent);
+    border-radius: var(--radius); padding: 0.38rem 1.1rem;
+    font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .search-feedback .suggest-add:hover { background: #152840; }
+
+  /* highlight matched item */
+  .checklist-item.search-match { outline: 1.5px solid var(--accent); outline-offset: -1px; }
 
   .done-banner { display: none; background: var(--green-bg); border: 1.5px solid var(--green); border-radius: var(--radius); padding: 0.75rem 1.2rem; color: var(--green); font-size: 1.05rem; font-weight: 600; text-align: center; margin-bottom: 1rem; animation: fadeIn 0.4s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
@@ -78,9 +116,14 @@
   .incart-check { width: 1.2rem; height: 1.2rem; border-radius: 4px; background: var(--accent); border: 2px solid var(--accent); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
   .incart-check svg { width: 0.7rem; height: 0.7rem; }
 
-  /* BOTTOM */
-  .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1.5px solid var(--border); padding: 0.85rem 1.4rem; display: flex; justify-content: center; }
-  .reset-btn { background: transparent; border: 1.5px solid var(--red); color: var(--red); border-radius: var(--radius); padding: 0.45rem 2rem; font-size: 1rem; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background 0.15s; display: flex; align-items: center; gap: 0.5rem; }
+  /* ── ADD ITEM + RESET (non-fixed, bottom of page) ── */
+  .page-footer { background: var(--surface2); border-top: 1.5px solid var(--border); padding: 0.9rem 1.2rem; }
+  .add-row { display: flex; gap: 0.6rem; margin-bottom: 0.75rem; }
+  .add-input { flex: 1; background: var(--bg); border: 1.5px solid var(--border); color: var(--text); border-radius: var(--radius); padding: 0.5rem 0.9rem; font-family: 'DM Sans', sans-serif; font-size: 1rem; outline: none; transition: border-color 0.15s; }
+  .add-input:focus { border-color: var(--accent); }
+  .add-btn { background: var(--accent-bg); border: 1.5px solid var(--accent); color: var(--accent); border-radius: var(--radius); padding: 0.5rem 1.1rem; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+  .add-btn:hover { background: #152840; }
+  .reset-btn { width: 100%; background: transparent; border: 1.5px solid var(--red); color: var(--red); border-radius: var(--radius); padding: 0.5rem; font-size: 1rem; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: background 0.15s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
   .reset-btn:hover { background: rgba(255,140,140,0.1); }
 
   /* CONFIRMATION MODAL */
@@ -98,8 +141,8 @@
 </head>
 <body>
 
-<!-- STICKY TOP -->
-<div class="top-bar">
+<!-- ══ STICKY TOP BAR ══ -->
+<div class="top-bar" id="topBar">
   <div class="top-header">
     <div class="top-title">🛒 Costco Checklist</div>
     <div class="top-date">
@@ -108,37 +151,42 @@
       <div class="d-year" id="yearEl"></div>
     </div>
   </div>
-  <div class="top-bar-inner">
+  <!-- progress -->
+  <div class="progress-row">
     <div class="stat-pill">In Cart <span id="cartCount">0</span></div>
     <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
     <div class="stat-pill">Left <span id="remainingCount">0</span></div>
   </div>
+  <!-- search -->
+  <div class="search-row">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" id="searchInput" type="text" placeholder="Search items…" autocomplete="off">
+    <button class="search-clear" id="searchClear">✕</button>
+  </div>
 </div>
 
-<!-- ADD ITEM -->
-<div class="add-row">
-  <input class="add-input" id="addInput" type="text" placeholder="Add item…" autocomplete="off">
-  <button class="add-btn" id="addBtn">+ Add</button>
-</div>
-
-<!-- SORT TOGGLE -->
-<div class="sort-row">
+<!-- ══ STICKY SORT BAR ══ -->
+<div class="sort-bar" id="sortBar">
   <button class="sort-btn active" id="btnCategory">📦 By Category</button>
   <button class="sort-btn" id="btnAlpha">🔤 Alphabetically</button>
 </div>
 
+<!-- ══ CONTENT ══ -->
 <div class="content">
   <div class="done-banner" id="doneBanner">🎉 Cart's full! Head to checkout.</div>
+  <div id="searchFeedback" class="search-feedback"></div>
   <div id="shoppingList"></div>
   <div id="incartSection" style="display:none;">
-    <div class="checklist-card">
-      <div class="section-label incart">🛒 In Cart</div>
-      <div id="incartList"></div>
-    </div>
+    <div id="incartList"></div>
   </div>
 </div>
 
-<div class="bottom-bar">
+<!-- ══ FOOTER: Add + Reset (non-fixed) ══ -->
+<div class="page-footer">
+  <div class="add-row">
+    <input class="add-input" id="addInput" type="text" placeholder="Add new item to list…" autocomplete="off">
+    <button class="add-btn" id="addBtn">+ Add</button>
+  </div>
   <button class="reset-btn" id="resetBtn">
     <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 8a6 6 0 1 0 1.5-3.9" stroke="#ff8c8c" stroke-width="1.8" stroke-linecap="round"/><path d="M2 4v4h4" stroke="#ff8c8c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
     Reset Cart
@@ -160,13 +208,20 @@
 <script>
 const CK = `<svg viewBox="0 0 12 10" fill="none"><path d="M1 5l3.5 3.5L11 1" stroke="#0c0c0e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
-// Date
+// ── Date ──────────────────────────────────────────────────
 const now = new Date();
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 document.getElementById('dayName').textContent = DAYS[now.getDay()];
 document.getElementById('dateBig').textContent = MONTHS[now.getMonth()] + ' ' + now.getDate();
 document.getElementById('yearEl').textContent = now.getFullYear();
+
+// Measure sticky top-bar height and set CSS var so sort-bar sticks below it
+function updateSortBarTop() {
+  const h = document.getElementById('topBar').offsetHeight;
+  document.getElementById('sortBar').style.top = h + 'px';
+}
+window.addEventListener('resize', updateSortBarTop);
 
 // ── DATA ──────────────────────────────────────────────────
 const DEFAULT_SECTIONS = [
@@ -198,7 +253,8 @@ function saveCart(c) { localStorage.setItem(CK2, JSON.stringify([...c])); }
 
 let sections = loadSections();
 let cart = loadCart();
-let sortMode = 'category'; // 'category' | 'alpha'
+let sortMode = 'category';
+let searchQuery = '';
 
 function allItems() { return sections.flatMap(s => s.items); }
 
@@ -210,9 +266,10 @@ function removeItem(name) {
   render();
 }
 
-function makeShopRow(name) {
+function makeShopRow(name, highlight) {
   const div = document.createElement('div');
-  div.className = 'checklist-item';
+  div.className = 'checklist-item' + (highlight ? ' search-match' : '');
+  div.dataset.itemName = name.toLowerCase();
   div.innerHTML = `<div class="custom-check">${CK}</div><span class="item-label">${name}</span><button class="remove-btn" title="Remove">✕</button>`;
   div.querySelector('.item-label').addEventListener('click', () => { cart.add(name.toLowerCase()); saveCart(cart); render(); });
   div.querySelector('.custom-check').addEventListener('click', e => { e.stopPropagation(); cart.add(name.toLowerCase()); saveCart(cart); render(); });
@@ -234,17 +291,64 @@ function render() {
   const listEl = document.getElementById('shoppingList');
   const incartEl = document.getElementById('incartList');
   const incartSec = document.getElementById('incartSection');
+  const feedbackEl = document.getElementById('searchFeedback');
   listEl.innerHTML = '';
   incartEl.innerHTML = '';
+  feedbackEl.style.display = 'none';
+  feedbackEl.innerHTML = '';
 
+  const q = searchQuery.trim().toLowerCase();
   const remaining = allItems().filter(i => !cart.has(i.toLowerCase()));
-  const inCart = allItems()
-    .filter(i => cart.has(i.toLowerCase()))
-    .filter((i, idx, arr) => arr.findIndex(x => x.toLowerCase() === i.toLowerCase()) === idx)
-    .sort((a, b) => a.localeCompare(b));
 
+  // ── Search mode ──
+  if (q) {
+    // Find partial matches (items containing the query string)
+    const matches = remaining.filter(i => i.toLowerCase().includes(q));
+    const exactMatch = remaining.find(i => i.toLowerCase() === q);
+
+    if (matches.length === 0) {
+      // No match at all
+      feedbackEl.style.display = 'block';
+      feedbackEl.innerHTML = `<div>No match found for "<strong style="color:var(--text)">${searchQuery}</strong>"</div>
+        <button class="suggest-add" id="suggestAddBtn">+ Add "${searchQuery}" to list</button>`;
+      document.getElementById('suggestAddBtn').addEventListener('click', () => {
+        addItemByName(searchQuery);
+        document.getElementById('searchInput').value = '';
+        searchQuery = '';
+        document.getElementById('searchClear').classList.remove('visible');
+        render();
+      });
+    } else {
+      // Show matches and scroll to first exact or partial match
+      const card = document.createElement('div');
+      card.className = 'checklist-card';
+      const hdr = document.createElement('div');
+      hdr.className = 'section-label alpha';
+      hdr.textContent = `🔍 Results for "${searchQuery}"`;
+      card.appendChild(hdr);
+      let firstMatchEl = null;
+      matches.forEach(i => {
+        const isExact = i.toLowerCase() === q;
+        const row = makeShopRow(i, isExact);
+        if (!firstMatchEl) firstMatchEl = row;
+        card.appendChild(row);
+      });
+      listEl.appendChild(card);
+      // Scroll the first match into view after DOM settles
+      if (firstMatchEl) {
+        requestAnimationFrame(() => {
+          firstMatchEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+      }
+    }
+    // Still show In Cart in search mode
+    renderIncart(incartEl, incartSec);
+    updateStats();
+    return;
+  }
+
+  // ── Normal mode ──
   if (sortMode === 'category') {
-    // Group by section
     sections.forEach(sec => {
       const secItems = sec.items.filter(i => !cart.has(i.toLowerCase()));
       if (!secItems.length) return;
@@ -254,11 +358,10 @@ function render() {
       hdr.className = 'section-label';
       hdr.textContent = sec.label;
       card.appendChild(hdr);
-      secItems.forEach(i => card.appendChild(makeShopRow(i)));
+      secItems.forEach(i => card.appendChild(makeShopRow(i, false)));
       listEl.appendChild(card);
     });
   } else {
-    // Alphabetical — single card, all remaining items sorted A-Z
     if (remaining.length) {
       const card = document.createElement('div');
       card.className = 'checklist-card';
@@ -266,16 +369,24 @@ function render() {
       hdr.className = 'section-label alpha';
       hdr.textContent = '🔤 A – Z';
       card.appendChild(hdr);
-      [...remaining].sort((a,b) => a.localeCompare(b)).forEach(i => card.appendChild(makeShopRow(i)));
+      [...remaining].sort((a,b) => a.localeCompare(b)).forEach(i => card.appendChild(makeShopRow(i, false)));
       listEl.appendChild(card);
     }
   }
 
-  // In Cart — category mode: group by section; alpha mode: single sorted list
+  renderIncart(incartEl, incartSec);
+  updateStats();
+}
+
+function renderIncart(incartEl, incartSec) {
+  const inCart = allItems()
+    .filter(i => cart.has(i.toLowerCase()))
+    .filter((i, idx, arr) => arr.findIndex(x => x.toLowerCase() === i.toLowerCase()) === idx)
+    .sort((a, b) => a.localeCompare(b));
+
   if (inCart.length) {
     incartSec.style.display = 'block';
-    if (sortMode === 'category') {
-      // Render one incart-card per section that has items in cart
+    if (sortMode === 'category' && !searchQuery) {
       sections.forEach(sec => {
         const secInCart = sec.items.filter(i => cart.has(i.toLowerCase()));
         if (!secInCart.length) return;
@@ -289,7 +400,6 @@ function render() {
         incartEl.appendChild(card);
       });
     } else {
-      // Single alphabetical card
       const card = document.createElement('div');
       card.className = 'checklist-card';
       const hdr = document.createElement('div');
@@ -302,10 +412,13 @@ function render() {
   } else {
     incartSec.style.display = 'none';
   }
+}
 
-  // Stats
+function updateStats() {
   const total = allItems().length;
-  const cartCount = inCart.length;
+  const cartCount = allItems()
+    .filter(i => cart.has(i.toLowerCase()))
+    .filter((i, idx, arr) => arr.findIndex(x => x.toLowerCase() === i.toLowerCase()) === idx).length;
   const pct = total ? Math.round(cartCount / total * 100) : 0;
   document.getElementById('progressFill').style.width = pct + '%';
   document.getElementById('cartCount').textContent = cartCount;
@@ -313,7 +426,7 @@ function render() {
   document.getElementById('doneBanner').style.display = (cartCount === total && total > 0) ? 'block' : 'none';
 }
 
-// Sort buttons
+// ── Sort buttons ──────────────────────────────────────────
 document.getElementById('btnCategory').addEventListener('click', () => {
   sortMode = 'category';
   document.getElementById('btnCategory').classList.add('active');
@@ -327,10 +440,26 @@ document.getElementById('btnAlpha').addEventListener('click', () => {
   render();
 });
 
-// Add item
-function addItem() {
-  const input = document.getElementById('addInput');
-  const val = input.value.trim();
+// ── Search ────────────────────────────────────────────────
+const searchInput = document.getElementById('searchInput');
+const searchClear = document.getElementById('searchClear');
+
+searchInput.addEventListener('input', () => {
+  searchQuery = searchInput.value;
+  searchClear.classList.toggle('visible', searchQuery.length > 0);
+  render();
+});
+searchClear.addEventListener('click', () => {
+  searchInput.value = '';
+  searchQuery = '';
+  searchClear.classList.remove('visible');
+  searchInput.focus();
+  render();
+});
+
+// ── Add item ──────────────────────────────────────────────
+function addItemByName(val) {
+  val = val.trim();
   if (!val) return;
   if (!allItems().some(i => i.toLowerCase() === val.toLowerCase())) {
     let addedSec = sections.find(s => s.label === '➕ Added Items');
@@ -338,6 +467,13 @@ function addItem() {
     addedSec.items.push(val);
     saveSections(sections);
   }
+}
+
+function addItem() {
+  const input = document.getElementById('addInput');
+  const val = input.value.trim();
+  if (!val) return;
+  addItemByName(val);
   input.value = '';
   render();
   input.focus();
@@ -345,7 +481,7 @@ function addItem() {
 document.getElementById('addBtn').addEventListener('click', addItem);
 document.getElementById('addInput').addEventListener('keydown', e => { if (e.key === 'Enter') addItem(); });
 
-// Reset — show confirmation modal
+// ── Reset ─────────────────────────────────────────────────
 document.getElementById('resetBtn').addEventListener('click', () => {
   document.getElementById('confirmModal').classList.add('open');
 });
@@ -358,12 +494,14 @@ document.getElementById('modalConfirm').addEventListener('click', () => {
   document.getElementById('confirmModal').classList.remove('open');
   render();
 });
-// Close on backdrop click
 document.getElementById('confirmModal').addEventListener('click', e => {
   if (e.target === e.currentTarget) e.currentTarget.classList.remove('open');
 });
 
+// ── Init ──────────────────────────────────────────────────
 render();
+// Set sort-bar sticky offset after first render
+requestAnimationFrame(updateSortBarTop);
 </script>
 </body>
 </html>
