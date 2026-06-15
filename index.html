@@ -302,12 +302,10 @@ function render() {
 
   // ── Search mode ──
   if (q) {
-    // Find partial matches (items containing the query string)
-    const matches = remaining.filter(i => i.toLowerCase().includes(q));
-    const exactMatch = remaining.find(i => i.toLowerCase() === q);
+    // Search ALL items — both unchecked and in-cart
+    const allMatches = allItems().filter(i => i.toLowerCase().includes(q));
 
-    if (matches.length === 0) {
-      // No match at all
+    if (allMatches.length === 0) {
       feedbackEl.style.display = 'block';
       feedbackEl.innerHTML = `<div>No match found for "<strong style="color:var(--text)">${searchQuery}</strong>"</div>
         <button class="suggest-add" id="suggestAddBtn">+ Add "${searchQuery}" to list</button>`;
@@ -319,7 +317,6 @@ function render() {
         render();
       });
     } else {
-      // Show matches and scroll to first exact or partial match
       const card = document.createElement('div');
       card.className = 'checklist-card';
       const hdr = document.createElement('div');
@@ -327,22 +324,21 @@ function render() {
       hdr.textContent = `🔍 Results for "${searchQuery}"`;
       card.appendChild(hdr);
       let firstMatchEl = null;
-      matches.forEach(i => {
+      allMatches.forEach(i => {
+        const inCart = cart.has(i.toLowerCase());
         const isExact = i.toLowerCase() === q;
-        const row = makeShopRow(i, isExact);
+        const row = inCart ? makeCartRow(i) : makeShopRow(i, isExact);
         if (!firstMatchEl) firstMatchEl = row;
         card.appendChild(row);
       });
       listEl.appendChild(card);
-      // Scroll the first match into view after DOM settles
       if (firstMatchEl) {
         requestAnimationFrame(() => {
           firstMatchEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
         });
       }
     }
-    // Still show In Cart in search mode
-    renderIncart(incartEl, incartSec);
+    incartSec.style.display = 'none'; // hide separate in-cart section during search
     updateStats();
     return;
   }
